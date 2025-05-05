@@ -1,26 +1,41 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using LibraryExercise.Models;
 
 namespace LibraryExercise.Controllers;
 
+/// <summary>
+/// Controller for all the API calls related to the Book table.
+/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class BookController: ControllerBase{
+
+    /// <summary>
+    /// Database context for the API.
+    /// </summary>
     private readonly AppDbContext dbContext;
 
+    /// <summary>
+    /// Constructor for the LoanController.
+    /// </summary>
+    /// <param name="context">The database context.</param>
     public BookController(AppDbContext context){
         dbContext=context;
     }
 
+    /// <summary>
+    /// Delete a book from the database by ID.
+    /// </summary>
+    /// <param name="id">The id of the book.</param>
+    /// <returns>The result of the query from the database.</returns>
     [HttpDelete("DeleteBook")]
-    public async Task<IResult> DeleteBook(string id, AppDbContext db)
+    public async Task<IResult> DeleteBook(string id)
     {
         try{
-            if (await db.Books.FindAsync(id) is Book book)
+            if (await dbContext.Books.FindAsync(id) is Book book)
             {
-                db.Books.Remove(book);
-                await db.SaveChangesAsync();
+                dbContext.Books.Remove(book);
+                await dbContext.SaveChangesAsync();
                 return Results.NoContent();
             }      
         }  catch(Exception e)
@@ -31,22 +46,33 @@ public class BookController: ControllerBase{
         return Results.NotFound();
     }
 
+    /// <summary>
+    /// Get a book from the database by ID.
+    /// </summary>
+    /// <param name="id">The id of the book.</param>
+    /// <returns>The result of the query from the database.</returns>
     [HttpGet("GetBook")]
-    public async Task<IResult> GetBook(string id, AppDbContext db)
+    public async Task<IResult> GetBook(string id)
     {
         try{
-            return await db.Books.FindAsync(id) is Book book ? Results.Ok(book) : Results.NotFound();
+            return await dbContext.Books.FindAsync(id) is Book book ? Results.Ok(book) : Results.NotFound();
         } catch(Exception e)
         {
             throw new Exception(e.Message);
         }
     }
 
+    /// <summary>
+    /// Update a book from the database by ID.
+    /// </summary>
+    /// <param name="id">The id of the book.</param>
+    /// <param name="inputBook">The new data of the entry.</param>
+    /// <returns>The result of the query from the database.</returns>
     [HttpPut("UpdateBook")]
-    public async Task<IResult> UpdateBook(string id, AppDbContext db, Book inputBook)
+    public async Task<IResult> UpdateBook(string id, Book inputBook)
     {
         try{
-            var book = await db.Books.FindAsync(id);
+            var book = await dbContext.Books.FindAsync(id);
 
             if (book is null) return Results.NotFound();
 
@@ -54,7 +80,7 @@ public class BookController: ControllerBase{
             book.AuthorId = inputBook.AuthorId;
             book.PublicationDate = inputBook.PublicationDate;
 
-            await db.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
 
             return Results.NoContent();
             
@@ -64,12 +90,17 @@ public class BookController: ControllerBase{
         }
     }
 
+    /// <summary>
+    /// Add a book from the database.
+    /// </summary>
+    /// <param name="book">The book to add.</param>
+    /// <returns>The result of the query from the database.</returns>
     [HttpPost("AddBook")]
-    public async Task<IResult> AddBook(Book book, AppDbContext db)
+    public async Task<IResult> AddBook(Book book)
     {
         try{
-            db.Books.Add(book);
-            await db.SaveChangesAsync();
+            dbContext.Books.Add(book);
+            await dbContext.SaveChangesAsync();
 
             return Results.Created($"/BookItems/{book.Id}", book);
         }  catch(Exception e)
