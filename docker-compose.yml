@@ -1,0 +1,23 @@
+services:
+  libraryapi:
+    image: ${DOCKER_REGISTRY-}libraryapi
+    build:
+      context: .
+      dockerfile: LibraryAPI/Dockerfile
+    ports:
+        - "5000:5000"
+        - "5001:5001"
+  library.database:
+    image: postgres:latest
+    container_name: library.database
+    restart: always
+    ports:
+        - "5432:5432"
+    environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: watchout
+        POSTGRES_DB: libraryDB
+    volumes:
+        - ./.containers/library.database:/var/lib/postgresql/data
+volumes:
+    local_data:
