@@ -19,7 +19,11 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-//app.UseHttpsRedirection();
+// Build the tables.
+using IServiceScope scope = app.Services.CreateScope();
+using AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+dbContext.Database.Migrate();
+
 app.UseAuthorization();
 app.MapControllers();
 

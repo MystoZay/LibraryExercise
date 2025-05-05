@@ -15,7 +15,7 @@ public class AppDbContext: DbContext{
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(configuration.GetConnectionString("Default"));
+        optionsBuilder.UseNpgsql(configuration.GetConnectionString("DefaultDocker"));
     }
 
 }
